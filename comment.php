@@ -1,6 +1,7 @@
 <?php
 session_start();
-include 'includes/db.php'; // Дерекқор қосылымын қосу
+include 'includes/db.php';
+include 'includes/header.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $imageId = $_POST['image_id'];

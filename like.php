@@ -6,20 +6,27 @@ if (isset($_POST['image_id']) && isset($_SESSION['user_id'])) {
     $imageId = $_POST['image_id'];
     $userId = $_SESSION['user_id'];
 
-    // Лайк бар ма, жоқ па тексереміз
-    $stmt = $conn->prepare("SELECT * FROM likes WHERE image_id = :image_id AND user_id = :user_id");
-    $stmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
-    $like = $stmt->fetch();
+    // Лайк бар-жоғын тексеру
+    $likeStmt = $conn->prepare("SELECT * FROM likes WHERE image_id = :image_id AND user_id = :user_id");
+    $likeStmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+    $isLiked = $likeStmt->rowCount() > 0;
 
-    if ($like) {
-        // Лайк бар болса, оны алып тастаймыз
-        $stmt = $conn->prepare("DELETE FROM likes WHERE image_id = :image_id AND user_id = :user_id");
-        $stmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+    // Егер лайк болса, алып тастау, болмаса қосу
+    if ($isLiked) {
+        $deleteStmt = $conn->prepare("DELETE FROM likes WHERE image_id = :image_id AND user_id = :user_id");
+        $deleteStmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+        $liked = false;
     } else {
-        // Лайк жоқ болса, оны қосамыз
-        $stmt = $conn->prepare("INSERT INTO likes (image_id, user_id) VALUES (:image_id, :user_id)");
-        $stmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+        $insertStmt = $conn->prepare("INSERT INTO likes (image_id, user_id) VALUES (:image_id, :user_id)");
+        $insertStmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+        $liked = true;
     }
-    echo json_encode(['status' => 'success']);
+
+    // JSON жауап қайтару (лайк саны енді жоқ)
+    echo json_encode(['liked' => $liked]);
+} else {
+    echo json_encode(['error' => 'User not logged in or image_id not provided']);
 }
 ?>
+
+

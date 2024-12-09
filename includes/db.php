@@ -6,10 +6,16 @@ $username = 'root'; // XAMPP/MAMP қолдансаңыз, әдетте 'root'
 $password = 'root'; // Пароль бос болуы мүмкін
 
 try {
-    $conn = new PDO("mysql:host=localhost;dbname=joba;charset=utf8", "root", "root");
+    // Дерекқор қосылымын орнату
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    
+    // Қосылымның дұрыс орнатылғанын тексеру
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Қосылым сәтті болған жағдайда хабарлама
+    echo "Дерекқорға қосылу сәтті!";
 } catch (PDOException $e) {
+    // Қате болған жағдайда хабарлама шығару
     die("Дерекқорға қосылу мүмкін болмады: " . $e->getMessage());
 }
-
 ?>
